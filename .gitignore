@@ -1,0 +1,6 @@
+node_modules/
+dist/
+docket-runs/
+.env
+*.log
+.DS_Store

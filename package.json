@@ -1,0 +1,28 @@
+{
+  "name": "docket",
+  "version": "0.1.0",
+  "description": "Docket — an autonomous codebase health agent. Every finding is a case: evidence, reasoning, verdict.",
+  "type": "module",
+  "private": true,
+  "bin": {
+    "docket": "./dist/index.js"
+  },
+  "scripts": {
+    "scan": "tsx src/index.ts",
+    "build": "tsc -p tsconfig.json",
+    "start": "node dist/index.js",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "@anthropic-ai/claude-agent-sdk": "^0.3.241",
+    "zod": "^4.0.0"
+  },
+  "devDependencies": {
+    "tsx": "^4.19.2",
+    "typescript": "^5.6.3",
+    "@types/node": "^22.9.0"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
