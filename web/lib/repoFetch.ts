@@ -97,9 +97,17 @@ async function defaultBranch(owner: string, repo: string): Promise<string> {
 
 /** Parses "owner/repo", a github.com URL, or "owner/repo@ref" into parts. */
 export function parseRepoInput(input: string): { owner: string; repo: string; ref?: string } {
-  let s = input.trim().replace(/\.git$/, "");
+  let s = input.trim();
+  // Strip trailing punctuation commonly picked up when a URL is
+  // copy-pasted out of a sentence — a period ending the sentence, a stray
+  // comma, a closing paren/bracket/quote — before it gets treated as part
+  // of the repo name (a trailing "." would otherwise look for a repo
+  // literally named "reponame.", which 404s and is confusing to debug).
+  s = s.replace(/[.,;:)\]}>"'\s]+$/, "");
+  s = s.replace(/\.git$/, "");
   s = s.replace(/^https?:\/\/(www\.)?github\.com\//, "");
   s = s.replace(/^git@github\.com:/, "");
+  s = s.replace(/\/+$/, "");
   const [ownerRepo, ref] = s.split("@");
   const parts = ownerRepo.split("/").filter(Boolean);
   if (parts.length < 2) {
