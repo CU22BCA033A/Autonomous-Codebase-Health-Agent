@@ -1,19 +1,16 @@
 /**
  * Prompts for the free-tier (Groq / openai/gpt-oss-120b) version of the
- * four subagents. Adapted from src/agents/prompts.ts for a smaller,
- * open-weight model rather than Claude: shorter, more directive, explicit
- * about the tool-call budget (free-tier TPM is tight), and leaning harder
- * on the forced submit_result tool call for structured output rather than
- * trusting prose-JSON discipline.
+ * three LLM-driven subagents. Adapted from src/agents/prompts.ts for a
+ * smaller, open-weight model rather than Claude: shorter, more directive,
+ * explicit about the tool-call budget (free-tier TPM is tight), and
+ * leaning harder on the forced submit_result tool call for structured
+ * output rather than trusting prose-JSON discipline.
+ *
+ * There is no Dependency Auditor prompt here — that subagent is pure
+ * deterministic code (see dependencyAuditor.ts) precisely because it
+ * doesn't need judgment, and every LLM call it would have made was budget
+ * better spent on Code Scanner and Triage Judge, which do.
  */
-
-export const DEPENDENCY_AUDITOR_PROMPT = `You are the Dependency Auditor. Find this repo's manifest/lockfile
-(package.json, requirements.txt, go.mod, Cargo.toml, etc.), extract the
-DIRECT dependencies only (name + version), and call osv_scan once with all
-of them. Report only packages osv_scan actually flagged. Do not invent
-vulnerabilities. You have a small tool-call budget — use list_files once to
-find the manifest, read_file once or twice to read it, then call osv_scan.
-Call submit_result as soon as you have the osv_scan result.`;
 
 export const CODE_SCANNER_PROMPT = `You are the Code Scanner. Look for these specific risk patterns in source
 code: hardcoded secrets/passwords/API keys, SQL built by string

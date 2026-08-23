@@ -2,7 +2,7 @@
  * Thin client for Groq's OpenAI-compatible chat completions API. Groq's
  * free tier (no credit card, https://console.groq.com) is the whole reason
  * this app can run at zero cost — in exchange it's rate-limited (as of
- * writing: 30 requests/min, 6,000 tokens/min, 14,400 requests/day per org).
+ * writing: 30 requests/min, 8,000 tokens/min, 14,400 requests/day per org).
  * Every call here respects that: 429s get a bounded retry with backoff
  * instead of hammering the API, and callers (agentLoop.ts) are responsible
  * for keeping prompts and tool results lean so a single scan doesn't blow

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { ScanRun, Case } from "@/lib/types";
 
 const VERDICT_LABEL: Record<Case["verdict"], string> = {
@@ -9,11 +9,35 @@ const VERDICT_LABEL: Record<Case["verdict"], string> = {
   "low-priority": "LOW PRIORITY",
 };
 
+const STATUS_MESSAGES = [
+  "Fetching repository…",
+  "Auditing dependencies against OSV.dev…",
+  "Reading source for risk patterns…",
+  "Triaging findings — reachability, blast radius, confidence…",
+  "Weighing verdicts…",
+];
+
 export default function Home() {
   const [repo, setRepo] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [run, setRun] = useState<ScanRun | null>(null);
+  const [statusIndex, setStatusIndex] = useState(0);
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  useEffect(() => {
+    if (loading) {
+      setStatusIndex(0);
+      intervalRef.current = setInterval(() => {
+        setStatusIndex((i) => Math.min(i + 1, STATUS_MESSAGES.length - 1));
+      }, 6000);
+    } else if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+    }
+    return () => {
+      if (intervalRef.current) clearInterval(intervalRef.current);
+    };
+  }, [loading]);
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -33,14 +57,9 @@ export default function Home() {
       try {
         data = JSON.parse(raw);
       } catch {
-        // Not JSON at all — this is Vercel's own platform error page, not
-        // our API route's response, which means the function crashed or
-        // (far more likely for a real repo) got killed for exceeding its
-        // time limit before it could finish and reply.
         throw new Error(
-          "The scan didn't finish in time and the server stopped it (a timeout, not this app's own error). " +
-            "Try a smaller/simpler repo, or fewer findings if you control this deployment " +
-            "(DOCKET_MAX_FINDINGS / DOCKET_MAX_AUTOFIX env vars).",
+          "The scan didn't finish in time and the server stopped it. Try a smaller repo, " +
+            "or fewer findings if you control this deployment (DOCKET_MAX_FINDINGS env var).",
         );
       }
 
@@ -63,11 +82,8 @@ export default function Home() {
 
   return (
     <main>
-      <h1>Docket</h1>
-      <p className="subtitle">
-        Free-tier build — runs on Groq&apos;s free API instead of a paid LLM. Public GitHub repos only, small/quick
-        scans (findings are capped to fit the free-tier budget). See the README for details and limits.
-      </p>
+      <h1 className="wordmark">Docket</h1>
+      <p className="tagline">Every finding gets a verdict — not just a list.</p>
 
       <form onSubmit={onSubmit}>
         <input
@@ -82,9 +98,17 @@ export default function Home() {
         </button>
       </form>
       <p className="hint">
-        e.g. <code>OWASP/NodeGoat</code> — small repos scan faster and are more likely to finish within the free
-        function time limit.
+        e.g. <code>OWASP/NodeGoat</code>
       </p>
+
+      {loading && (
+        <div className="status-strip">
+          <span className="pulse-dot" />
+          <span className="status-text" key={statusIndex}>
+            {STATUS_MESSAGES[statusIndex]}
+          </span>
+        </div>
+      )}
 
       {error && <div className="error">{error}</div>}
 
@@ -106,7 +130,7 @@ export default function Home() {
             {groups!["auto-fixed"].length} auto-fix eligible, {groups!["low-priority"].length} low priority.
           </p>
 
-          {run.cases.length === 0 && !error && <p>No findings this run.</p>}
+          {run.cases.length === 0 && !error && <p className="empty">No findings this run — clean sweep.</p>}
 
           {(["needs-review", "auto-fixed", "low-priority"] as const).map((verdict) =>
             groups![verdict].length > 0 ? (
@@ -126,7 +150,7 @@ export default function Home() {
 
 function CaseCard({ c, fixPlan }: { c: Case; fixPlan?: ScanRun["fixPlans"][number] }) {
   return (
-    <div className="case">
+    <div className={`case verdict-${c.verdict}`}>
       <span className={`verdict-badge verdict-${c.verdict}`}>{VERDICT_LABEL[c.verdict]}</span>
       <h3>{c.title}</h3>
       <div className="meta">
