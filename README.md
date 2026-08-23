@@ -6,8 +6,19 @@ list it — it reasons through whether the issue is actually reachable in
 mechanical fix exists, then produces a verdict with a visible chain of
 reasoning.
 
-This repo currently implements **Step 1 of the build brief only**: the
-headless agent core, run from a terminal, with no dashboard. See
+This repo has two builds:
+
+- **`src/`** (this README) — the CLI, built on the Claude Agent SDK. Faithful
+  to the original build brief, but needs a Claude API key/subscription and
+  runs from a terminal.
+- **[`web/`](./web/README.md)** — a free, Vercel-deployable rebuild of the
+  same triage pipeline against Groq's free API instead of Claude, for
+  anyone who wants to run this at zero cost. Different LLM, weaker
+  reasoning, same decision matrix and guardrails. See `web/README.md`.
+
+This file covers the CLI. It currently implements **Step 1 of the build
+brief only**: the headless agent core, run from a terminal, with no
+dashboard. See
 `brief.md`-equivalent context in the task history for the full plan — the
 dashboard, GitHub Action triggers, and the real branch/test/PR fix flow are
 later steps.
