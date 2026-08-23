@@ -112,3 +112,37 @@ Validation here instead focused on the Code Scanner → Triage Judge path
 vulnerable Node.js application used for security training — chosen because
 a clean, well-audited repo (first tried: Express core) produced zero
 findings and couldn't exercise the triage logic's different verdict paths.
+
+## Validation results (NodeGoat, full pipeline, live)
+
+Code Scanner found 7 real findings reading NodeGoat's actual source (no
+fixed pattern list, no pre-existing vulnerability database — direct
+reasoning about the code): RCE via `eval()` on user input, SSRF and open
+redirect via an unvalidated `url` param, NoSQL injection via a
+string-interpolated `$where` query, a hardcoded session-signing secret,
+plaintext password storage with non-constant-time comparison, and hardcoded
+default admin credentials in a seed script.
+
+The Triage Judge traced each one to a real route registration and auth
+gate (Grep/Read/Bash — not assumed from the finding's description alone)
+before answering the four questions, then all 7 landed on **needs-review**
+via the deterministic decision matrix — every one is reachable from a
+public, session-gated (not admin-gated) HTTP route touching auth, PII, or
+RCE, so blast radius is HIGH for all of them. That's the guardrail working
+as intended: several of these had an obviously safe-looking mechanical fix
+sitting right there in the file as commented-out code (e.g. the NoSQL
+injection and the plaintext-password cases both have the fixed version
+already written, just disabled) — and the matrix still refused to mark
+them auto-fix-eligible, because blast radius alone gates that regardless of
+fix quality. Nothing in this run was low-priority or auto-fix-eligible,
+which is the correct outcome for a codebase where every real finding is
+security-critical, not a gap in the pipeline.
+
+Since that meant the Fixer never got exercised in the full run, it was
+validated separately: given a synthetic low-blast-radius, auto-fix-eligible
+case (a dev-only devDependency patch bump) against this repo itself, Fixer
+correctly read the actual `package.json`, noticed there's no `test` script
+defined, and proposed `npm run typecheck && npm run build` as the
+validation gate instead of guessing — producing an accurate branch name,
+diff, and summary without touching any files (no write tools are granted
+to it in this step).
