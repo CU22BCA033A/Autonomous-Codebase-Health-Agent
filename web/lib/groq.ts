@@ -10,7 +10,9 @@
  */
 
 const GROQ_API = "https://api.groq.com/openai/v1";
-export const GROQ_MODEL = process.env.GROQ_MODEL || "llama-3.3-70b-versatile";
+// llama-3.3-70b-versatile was deprecated by Groq (June 2026); their
+// recommended replacement for tool-calling/agentic use is gpt-oss-120b.
+export const GROQ_MODEL = process.env.GROQ_MODEL || "openai/gpt-oss-120b";
 
 export interface GroqToolDef {
   type: "function";

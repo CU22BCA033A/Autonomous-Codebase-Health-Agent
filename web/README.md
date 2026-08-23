@@ -20,7 +20,7 @@ in for what the Claude Agent SDK gives for free.
 
 | | CLI (`../src`) | This app (`web/`) |
 |---|---|---|
-| LLM | Claude, via Claude Agent SDK | `llama-3.3-70b-versatile` on Groq (free tier) |
+| LLM | Claude, via Claude Agent SDK | `openai/gpt-oss-120b` on Groq (free tier) |
 | Cost | Pay-per-token (Anthropic API) | $0 — Groq's free tier, no card required |
 | Repo access | Local filesystem (`git clone` yourself, then point the CLI at it) | Fetches a public GitHub repo's tarball into `/tmp` per request |
 | Runtime | Long-running terminal process | One bounded HTTP request (Vercel serverless function) |
@@ -54,10 +54,11 @@ That's it — no other services, no database, no paid tier of anything.
 - **Public GitHub repos only.** No auth for private repos or other Git hosts in this build.
 - **Findings are capped hard** (`DOCKET_MAX_FINDINGS`, default 4; `DOCKET_MAX_AUTOFIX`, default 1) to fit inside Groq's free-tier budget (as of writing: 30 requests/min, 6,000 tokens/min, 14,400 requests/day per org) and a single Vercel function invocation. Raise these env vars if you have headroom — you'll know you don't when you start seeing 429s in the warnings list.
 - **`maxDuration` is set to 60s** in `app/api/scan/route.ts`, a conservative default that works unmodified on Hobby. If your plan supports longer (Vercel's Fluid Compute allows up to 300s on Hobby, more on Pro), raise it there and raise the caps above to actually use the extra time.
-- **Reasoning quality is noticeably weaker than the Claude version.** `llama-3.3-70b-versatile` is a capable open model with real tool-calling support, but the ambiguous judgment calls this pipeline is built around (is this *actually* reachable? does this *really* touch PII?) are exactly where a smaller/weaker model is more likely to be shallow or inconsistent than Claude. Treat this build as "free and directionally useful," not as a drop-in quality replacement for the CLI.
+- **Reasoning quality is noticeably weaker than the Claude version.** `openai/gpt-oss-120b` is a capable open model with real tool-calling support, but the ambiguous judgment calls this pipeline is built around (is this *actually* reachable? does this *really* touch PII?) are exactly where a smaller/weaker model is more likely to be shallow or inconsistent than Claude. Treat this build as "free and directionally useful," not as a drop-in quality replacement for the CLI.
 - **Only direct dependencies are checked** (not the full transitive tree) to keep the OSV.dev payload and Groq's tool-calling loop small.
 - **No persistence.** Every scan is stateless — nothing is saved between requests. This is a single-request demo, not the data layer from later steps of the build plan.
 - **`npm audit` will flag postcss/sharp advisories** inherited from Next.js 15's optional image-optimization pipeline. This app doesn't use `next/image` or process user-supplied CSS/images, so they're not reachable through anything this app does; fixing them requires Next 16, which wasn't validated here.
+- **Groq deprecates/renames models with little notice.** This build originally targeted `llama-3.3-70b-versatile`, which Groq deprecated for free/developer-tier use in June 2026; it's now on `openai/gpt-oss-120b` (Groq's own recommended replacement for tool-calling workloads). If you start seeing `model_not_found` (404) warnings again, check [console.groq.com/docs/models](https://console.groq.com/docs/models) for the current model ID and set `GROQ_MODEL` in your Vercel env vars rather than waiting on a code change.
 
 ## Repo input format
 

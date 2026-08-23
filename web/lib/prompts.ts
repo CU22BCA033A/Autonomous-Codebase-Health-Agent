@@ -1,5 +1,5 @@
 /**
- * Prompts for the free-tier (Groq / llama-3.3-70b-versatile) version of the
+ * Prompts for the free-tier (Groq / openai/gpt-oss-120b) version of the
  * four subagents. Adapted from src/agents/prompts.ts for a smaller,
  * open-weight model rather than Claude: shorter, more directive, explicit
  * about the tool-call budget (free-tier TPM is tight), and leaning harder
