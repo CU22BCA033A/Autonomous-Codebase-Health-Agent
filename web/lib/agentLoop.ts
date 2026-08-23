@@ -57,18 +57,24 @@ export async function runAgentLoop<T>(spec: AgentLoopSpec<T>): Promise<T> {
 
   for (let iter = 1; iter <= maxIterations; iter++) {
     const forceSubmit = iter === maxIterations;
-    const message = await groqChat(messages, {
+    const { message, finishReason } = await groqChat(messages, {
       tools: toolDefs,
       toolChoice: forceSubmit ? { type: "function", function: { name: SUBMIT_TOOL_NAME } } : "auto",
-      maxTokens: 1536,
+      maxTokens: 2048,
     });
     messages.push(message);
 
     if (!message.tool_calls || message.tool_calls.length === 0) {
-      // Model replied with plain text instead of calling a tool. Nudge it.
+      // Model replied with plain text instead of calling a tool (or got cut
+      // off mid-thought by finish_reason:"length" before reaching one).
+      // Nudge it accordingly rather than repeating the same generic prompt,
+      // which just burns another iteration on more of the same.
+      const truncated = finishReason === "length";
       messages.push({
         role: "user",
-        content: `Call the ${SUBMIT_TOOL_NAME} tool with your final answer now, or another tool if you need more information first.`,
+        content: truncated
+          ? `Your last response was cut off before finishing. Stop reasoning and call the ${SUBMIT_TOOL_NAME} tool (or another tool) right now — be terse.`
+          : `Call the ${SUBMIT_TOOL_NAME} tool with your final answer now, or another tool if you need more information first.`,
       });
       continue;
     }
