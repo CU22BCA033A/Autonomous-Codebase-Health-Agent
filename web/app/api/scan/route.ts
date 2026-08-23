@@ -5,9 +5,15 @@ import { runScan } from "@/lib/orchestrator";
 // tarball and reads/greps files from /tmp — not available on the Edge
 // runtime.
 export const runtime = "nodejs";
-// Conservative default that works unmodified on Vercel Hobby. Raise this
-// (and DOCKET_MAX_FINDINGS) if your plan allows a longer function duration.
-export const maxDuration = 60;
+// 60s was too tight in practice: a real repo (several findings, each
+// triaged via multiple sequential Groq calls) routinely exceeds it and
+// Vercel kills the function mid-request, returning its own HTML/text error
+// page instead of a JSON response. 300s is Vercel's documented ceiling for
+// Hobby with Fluid Compute (the default since ~2025) — if your account
+// predates that and this causes a deploy-time "maxDuration too high"
+// error, enable Fluid Compute under Project Settings → Functions, or lower
+// this back down and reduce DOCKET_MAX_FINDINGS to compensate.
+export const maxDuration = 300;
 
 export async function POST(req: NextRequest): Promise<NextResponse> {
   let body: { repo?: string };

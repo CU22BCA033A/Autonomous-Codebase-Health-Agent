@@ -27,7 +27,23 @@ export default function Home() {
         headers: { "content-type": "application/json" },
         body: JSON.stringify({ repo: repo.trim() }),
       });
-      const data = await res.json();
+
+      const raw = await res.text();
+      let data: { error?: string } & Partial<ScanRun>;
+      try {
+        data = JSON.parse(raw);
+      } catch {
+        // Not JSON at all — this is Vercel's own platform error page, not
+        // our API route's response, which means the function crashed or
+        // (far more likely for a real repo) got killed for exceeding its
+        // time limit before it could finish and reply.
+        throw new Error(
+          "The scan didn't finish in time and the server stopped it (a timeout, not this app's own error). " +
+            "Try a smaller/simpler repo, or fewer findings if you control this deployment " +
+            "(DOCKET_MAX_FINDINGS / DOCKET_MAX_AUTOFIX env vars).",
+        );
+      }
+
       if (!res.ok) throw new Error(data.error || `Request failed (${res.status})`);
       setRun(data as ScanRun);
     } catch (err) {
