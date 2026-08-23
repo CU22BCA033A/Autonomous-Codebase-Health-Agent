@@ -83,6 +83,12 @@ export async function groqChat(
 ): Promise<GroqChatResult> {
   const MAX_ATTEMPTS = 4;
   let lastError: Error | undefined;
+  // Belt-and-suspenders: reasoning_effort is a real, documented Groq
+  // parameter for gpt-oss models, but it hasn't been exercised against a
+  // live account here — if the API rejects it (400) for any reason, drop
+  // it and retry rather than hard-failing every single call on an
+  // unverified parameter.
+  let includeReasoningEffort = IS_REASONING_MODEL;
 
   for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
     const res = await fetch(`${GROQ_API}/chat/completions`, {
@@ -98,7 +104,7 @@ export async function groqChat(
         tool_choice: opts.toolChoice ?? (opts.tools ? "auto" : undefined),
         temperature: 0.1,
         max_tokens: opts.maxTokens ?? 2048,
-        ...(IS_REASONING_MODEL ? { reasoning_effort: "low" } : {}),
+        ...(includeReasoningEffort ? { reasoning_effort: "low" } : {}),
       }),
     });
 
@@ -117,6 +123,13 @@ export async function groqChat(
         );
       }
       return { message: choice.message, finishReason: choice.finish_reason };
+    }
+
+    if (res.status === 400 && includeReasoningEffort) {
+      const body = await res.text();
+      console.warn(`[groq] request with reasoning_effort was rejected (${body.slice(0, 300)}) — retrying without it.`);
+      includeReasoningEffort = false;
+      continue;
     }
 
     if (res.status === 429 && attempt < MAX_ATTEMPTS) {
