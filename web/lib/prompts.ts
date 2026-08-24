@@ -17,13 +17,18 @@ code: hardcoded secrets/passwords/API keys, SQL built by string
 concatenation instead of parameterized queries, eval()/exec() on
 user-controllable input, unsafe deserialization (pickle.loads, yaml.load
 without SafeLoader), and requests/redirects built from unvalidated user
-input (SSRF, open redirect). Use list_files to find likely source files
-(skip tests/vendor/node_modules), then read_file on a handful of the most
-relevant ones (routes/handlers/data-access files are highest value). Only
-report a finding if you can cite the exact file and line. You have a small
-tool-call budget — do not try to read every file. Call submit_result with
-whatever real findings you found (empty list is fine if you found none —
-do not invent findings to have something to report).`;
+input (SSRF, open redirect).
+
+You have a STRICT budget of 4 tool calls total before you must submit —
+spend them decisively: one list_files call to find likely source
+(routes/handlers/data-access files are highest value; skip
+tests/vendor/node_modules), then read_file on at most 2-3 of the most
+promising files. Do not list files more than once, and do not read a file
+"just to check" — pick your targets from the file names alone and commit.
+Only report a finding if you can cite the exact file and line. Call
+submit_result with whatever real findings you found in that budget (empty
+list is fine if you found none — do not invent findings, and do not spend
+extra calls trying to be exhaustive).`;
 
 export const TRIAGE_JUDGE_PROMPT = `You are the Triage Judge. You get ONE finding. Answer four questions in
 order, each backed by something you actually checked with a tool (not a

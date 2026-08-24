@@ -33,7 +33,10 @@ const SUBMIT_TOOL_NAME = "submit_result";
  */
 export async function runAgentLoop<T>(spec: AgentLoopSpec<T>): Promise<T> {
   const maxIterations = spec.maxIterations ?? 6;
-  const maxToolResultChars = spec.maxToolResultChars ?? 2000;
+  // Every prior message (including every past tool result) gets resent on
+  // every subsequent call — cost compounds with iteration count, not flat
+  // per-call. Keeping this tight matters more than it looks like it should.
+  const maxToolResultChars = spec.maxToolResultChars ?? 1400;
 
   const toolDefs: GroqToolDef[] = [
     ...Object.entries(spec.tools).map(([name, t]) => ({

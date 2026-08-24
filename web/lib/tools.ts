@@ -26,10 +26,10 @@ const DEFAULT_IGNORE = [
 // and Groq's free tier is 8,000 tokens/minute shared across every call in
 // a scan (confirmed from a live 429: "Limit 8000"). A full file read isn't
 // usually needed for a pattern-scan or a reachability check.
-const MAX_READ_CHARS = 3500;
+const MAX_READ_CHARS = 2200;
 const MAX_FILE_BYTES_FOR_GREP = 300_000;
-const MAX_LIST_RESULTS = 150;
-const MAX_GREP_MATCHES = 20;
+const MAX_LIST_RESULTS = 60;
+const MAX_GREP_MATCHES = 15;
 
 function safeResolve(repoDir: string, requested: string): string {
   const resolved = path.resolve(repoDir, requested.replace(/^\/+/, ""));

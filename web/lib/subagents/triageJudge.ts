@@ -96,7 +96,7 @@ export async function runTriageJudge(repoDir: string, finding: RawFinding): Prom
     userPrompt: `Evaluate this finding:\n\n${findingDescription}`,
     tools,
     submitSchema: SUBMIT_SCHEMA,
-    maxIterations: 4,
+    maxIterations: 3,
   });
 
   const verdict = computeVerdict(output);

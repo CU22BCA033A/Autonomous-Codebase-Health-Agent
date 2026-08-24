@@ -57,7 +57,7 @@ export async function runCodeScanner(repoDir: string): Promise<RawFinding[]> {
     userPrompt: "Scan this repo's source for the risk patterns in your instructions and report real findings only.",
     tools,
     submitSchema: SUBMIT_SCHEMA,
-    maxIterations: 6,
+    maxIterations: 4,
   });
 
   return (output.findings ?? []).map((f) => ({
