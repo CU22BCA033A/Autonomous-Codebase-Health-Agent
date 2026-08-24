@@ -1,4 +1,4 @@
-import { groqChat, GroqError, type GroqMessage, type GroqToolDef } from "./groq";
+import { groqChat, GroqError, ToolChoiceMismatchError, type GroqMessage, type GroqToolDef } from "./groq";
 
 export interface ToolSpec {
   description: string;
@@ -58,13 +58,59 @@ export async function runAgentLoop<T>(spec: AgentLoopSpec<T>): Promise<T> {
     { role: "user", content: spec.userPrompt },
   ];
 
+  // One-time grace: if the forced final call gets rejected because the
+  // model wanted a different tool (see ToolChoiceMismatchError), we honor
+  // that call and give it exactly one more forced attempt afterward,
+  // rather than losing the whole turn to a 400 the model didn't mean to
+  // trigger.
+  let usedMismatchGrace = false;
+
   for (let iter = 1; iter <= maxIterations; iter++) {
     const forceSubmit = iter === maxIterations;
-    const { message, finishReason } = await groqChat(messages, {
-      tools: toolDefs,
-      toolChoice: forceSubmit ? { type: "function", function: { name: SUBMIT_TOOL_NAME } } : "auto",
-      maxTokens: 2048,
-    });
+    let message: GroqMessage;
+    let finishReason: string;
+    try {
+      ({ message, finishReason } = await groqChat(messages, {
+        tools: toolDefs,
+        toolChoice: forceSubmit ? { type: "function", function: { name: SUBMIT_TOOL_NAME } } : "auto",
+        maxTokens: 2048,
+      }));
+    } catch (err) {
+      if (err instanceof ToolChoiceMismatchError && forceSubmit && !usedMismatchGrace) {
+        usedMismatchGrace = true;
+        console.log(`[${spec.name}] honoring mismatched tool call "${err.toolName}" before retrying submit_result`);
+        const toolCallId = `recovered-${iter}`;
+        messages.push({
+          role: "assistant",
+          content: null,
+          tool_calls: [
+            { id: toolCallId, type: "function", function: { name: err.toolName, arguments: JSON.stringify(err.toolArgs) } },
+          ],
+        });
+        const tool = spec.tools[err.toolName];
+        let toolResult: string;
+        if (!tool) {
+          toolResult = `Unknown tool "${err.toolName}". Available tools: ${Object.keys(spec.tools).join(", ")}, ${SUBMIT_TOOL_NAME}.`;
+        } else {
+          try {
+            toolResult = await tool.handler(err.toolArgs);
+          } catch (toolErr) {
+            toolResult = `Tool failed: ${(toolErr as Error).message}`;
+          }
+        }
+        if (toolResult.length > maxToolResultChars) {
+          toolResult = `${toolResult.slice(0, maxToolResultChars)}\n…(truncated, ${toolResult.length} chars total)`;
+        }
+        messages.push({ role: "tool", tool_call_id: toolCallId, content: toolResult });
+        messages.push({ role: "user", content: `Now call ${SUBMIT_TOOL_NAME} with your final answer.` });
+        // `continue` runs the for-loop's `iter++` on the way out, so this
+        // decrement nets to "iter unchanged" — replays the same (final,
+        // forceSubmit=true) slot instead of exceeding maxIterations.
+        iter--;
+        continue;
+      }
+      throw err;
+    }
     messages.push(message);
 
     if (!message.tool_calls || message.tool_calls.length === 0) {

@@ -62,6 +62,40 @@ interface GroqChatResponse {
 
 export class GroqError extends Error {}
 
+/**
+ * Thrown when we force tool_choice to a specific tool (submit_result) but
+ * the model generates a call to a *different* tool anyway — Groq validates
+ * this server-side and rejects the whole request with a 400 rather than
+ * just running the call, so what would otherwise be a normal tool call
+ * becomes a hard failure. Carries the tool call the model actually wanted
+ * to make (parsed from the error's failed_generation field) so the caller
+ * can honor it instead of losing the model's work.
+ */
+export class ToolChoiceMismatchError extends GroqError {
+  constructor(
+    message: string,
+    public readonly toolName: string,
+    public readonly toolArgs: Record<string, unknown>,
+  ) {
+    super(message);
+  }
+}
+
+function parseToolChoiceMismatch(body: string): { name: string; args: Record<string, unknown> } | null {
+  try {
+    const parsed = JSON.parse(body) as { error?: { message?: string; failed_generation?: string } };
+    const message = parsed.error?.message ?? "";
+    const failedGeneration = parsed.error?.failed_generation;
+    if (!failedGeneration || !message.includes("does not match request.tool_choice")) return null;
+    const gen = JSON.parse(failedGeneration) as { name?: string; arguments?: string | Record<string, unknown> };
+    if (!gen.name) return null;
+    const args = typeof gen.arguments === "string" ? JSON.parse(gen.arguments) : (gen.arguments ?? {});
+    return { name: gen.name, args };
+  } catch {
+    return null;
+  }
+}
+
 function apiKey(): string {
   const key = process.env.GROQ_API_KEY;
   if (!key) {
@@ -125,11 +159,24 @@ export async function groqChat(
       return { message: choice.message, finishReason: choice.finish_reason };
     }
 
-    if (res.status === 400 && includeReasoningEffort) {
+    if (res.status === 400) {
       const body = await res.text();
-      console.warn(`[groq] request with reasoning_effort was rejected (${body.slice(0, 300)}) — retrying without it.`);
-      includeReasoningEffort = false;
-      continue;
+
+      if (includeReasoningEffort) {
+        console.warn(`[groq] request with reasoning_effort was rejected (${body.slice(0, 300)}) — retrying without it.`);
+        includeReasoningEffort = false;
+        continue;
+      }
+
+      const mismatch = parseToolChoiceMismatch(body);
+      if (mismatch) {
+        console.warn(
+          `[groq] forced tool_choice mismatch: model wanted to call "${mismatch.name}" instead — surfacing for recovery.`,
+        );
+        throw new ToolChoiceMismatchError(`Tool choice mismatch: ${body.slice(0, 300)}`, mismatch.name, mismatch.args);
+      }
+
+      throw new GroqError(`Groq API error 400: ${body.slice(0, 500)}`);
     }
 
     if (res.status === 429 && attempt < MAX_ATTEMPTS) {
