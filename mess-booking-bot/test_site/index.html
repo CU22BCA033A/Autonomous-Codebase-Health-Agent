@@ -1,16 +1,20 @@
 <!doctype html>
-<!-- Fake "mess allocation" page for testing the bot offline.
-     Open with ?layout=cards|radio|select|divclick and ?opensIn=<seconds>. -->
+<!-- Fake SpaceBasic-like "mess allocation" SPA for testing the bot offline.
+     Served by run_mock_tests.py, which also provides the mock API:
+       GET  /api/v3/messmanager/allocations  -> caterer list (+ whether booking is open)
+       POST /api/v3/messmanager/allocate     -> books a caterer
+     ?layout=cards|radio|select|table|divclick -->
 <html>
 <head>
   <meta charset="utf-8">
   <title>Mock Mess Allocations</title>
   <style>
     body { font-family: sans-serif; margin: 24px; }
-    .card { border: 1px solid #ccc; padding: 12px; margin: 8px 0; width: 320px; }
+    .card { border: 1px solid #ccc; padding: 12px; margin: 8px 0; width: 340px; }
     .modal { position: fixed; inset: 0; background: #0006; display: flex; align-items: center; justify-content: center; }
     .modal > div { background: #fff; padding: 20px; }
-    .clickcard { cursor: pointer; }
+    .clickcard { cursor: pointer; padding: 6px; }
+    .toast { position: fixed; top: 10px; right: 10px; background: #222; color: #fff; padding: 10px; }
   </style>
 </head>
 <body>
@@ -18,57 +22,64 @@
   <nav><button>View Menu</button> <button>Logout</button></nav>
   <div id="app">Loading...</div>
   <script>
-    const q = new URLSearchParams(location.search);
-    const layout = q.get('layout') || 'cards';
-    const opensAt = Number(sessionStorage.opensAt || (sessionStorage.opensAt = Date.now() + 1000 * Number(q.get('opensIn') || 0)));
-    const messes = ['Annapurna Caterers', 'Sagarfoods', 'Royal Kitchen'];
-    const app = document.getElementById('app');
-    const done = name => {
+    const layout = new URLSearchParams(location.search).get('layout') || 'cards';
+    // Fake JWT like SpaceBasic's (payload: uid, tenantId, exp = now + 3h)
+    const b64 = o => btoa(JSON.stringify(o)).replace(/=+$/, '').replace(/\+/g, '-').replace(/\//g, '_');
+    const JWT = b64({ alg: 'HS256' }) + '.' + b64({ uid: 123456, tenantId: 143, exp: Math.floor(Date.now() / 1000) + 3 * 3600 }) + '.sig';
+    const api = (path, opts = {}) => fetch('/api/v3/messmanager/' + path, {
+      ...opts, headers: { 'Authorization': 'Bearer ' + JWT, 'Content-Type': 'application/json' } }).then(r => r.json());
+
+    const toast = text => { const t = document.createElement('div'); t.className = 'toast'; t.textContent = text; document.body.appendChild(t); };
+    const book = async caterer => {
       document.querySelectorAll('.modal').forEach(m => m.remove());
-      const p = document.createElement('p');
-      p.textContent = name === 'Sagarfoods' ? 'Mess allocated successfully: Sagarfoods' : 'WRONG MESS BOOKED: ' + name;
-      p.id = 'result';
-      document.body.appendChild(p);
+      await new Promise(r => setTimeout(r, 300));   // server latency
+      const res = await api('allocate', { method: 'POST', body: JSON.stringify({ userId: '123456', catererId: caterer.id }) });
+      toast(res.message);
     };
-    const confirmModal = name => {
+    const confirmModal = caterer => {
       const m = document.createElement('div');
       m.className = 'modal';
-      m.innerHTML = `<div role="dialog"><p>Book ${name} for next month?</p><button id="no">Cancel</button> <button id="yes">Yes, confirm</button></div>`;
+      m.innerHTML = `<div role="dialog"><p>Book ${caterer.name} for next month?</p><button id="no">Cancel</button> <button id="yes">Yes, confirm</button></div>`;
       document.body.appendChild(m);
       m.querySelector('#no').onclick = () => m.remove();
-      m.querySelector('#yes').onclick = () => done(name);
+      m.querySelector('#yes').onclick = () => book(caterer);
     };
-    // Simulate an SPA that renders after a short delay
-    setTimeout(() => {
-      const open = Date.now() >= opensAt;
-      if (!open && layout !== 'cards') { app.textContent = 'Mess booking has not started yet.'; return; }
+
+    api('allocations?userId=123456&tenantId=143').then(({ result }) => {
+      const app = document.getElementById('app');
+      const { isOpen, caterers, bookingStartDate } = result;
+      const byId = id => caterers.find(c => String(c.id) === String(id));
+      const seatInfo = c => c.availableSeats > 0 ? `${c.availableSeats} seats left` : 'FULL';
+      const header = `<p>Booking window opens: ${bookingStartDate}</p>`;
+      if (!isOpen && layout !== 'cards' && layout !== 'table') { app.innerHTML = header + 'Mess booking has not started yet.'; return; }
       if (layout === 'cards') {
-        app.innerHTML = messes.map(m => `<div class="card"><h3>${m}</h3><p>Veg / Non-veg</p>
-            <button class="btn" ${open ? '' : 'disabled'} data-m="${m}">Book</button> <button>View Menu</button></div>`).join('');
-        app.querySelectorAll('button[data-m]').forEach(b => b.onclick = () => confirmModal(b.dataset.m));
+        app.innerHTML = header + caterers.map(c => `<div class="card"><h3>${c.name}</h3><p>${seatInfo(c)}</p>
+            <button class="btn" ${isOpen && c.availableSeats > 0 ? '' : 'disabled'} data-id="${c.id}">Book</button> <button>View Menu</button></div>`).join('');
+        app.querySelectorAll('button[data-id]').forEach(b => b.onclick = () => confirmModal(byId(b.dataset.id)));
+      } else if (layout === 'table') {
+        app.innerHTML = header + '<p>Your current mess: <b>Sagar</b>foods (Sept)</p><table><tr><th>Caterer</th><th>Seats</th><th></th></tr>' +
+          caterers.map(c => `<tr><td>${c.name === 'Sagarfoods' ? '<b>Sagar</b>foods' : c.name}</td><td>${seatInfo(c)}</td>
+            <td><button class="opt" ${isOpen ? '' : 'disabled'} data-id="${c.id}">Opt In</button></td></tr>`).join('') + '</table>';
+        app.querySelectorAll('button[data-id]').forEach(b => b.onclick = () => confirmModal(byId(b.dataset.id)));
       } else if (layout === 'radio') {
-        app.innerHTML = messes.map((m, i) => `<div><input type="radio" name="mess" id="r${i}" value="${m}" style="opacity:0;position:absolute">
-            <label for="r${i}">${m}</label></div>`).join('') + '<button id="submit">Submit</button>';
+        app.innerHTML = caterers.map((c, i) => `<div><input type="radio" name="mess" id="r${i}" value="${c.id}" style="opacity:0;position:absolute">
+            <label for="r${i}">${c.name} (${seatInfo(c)})</label></div>`).join('') + '<button id="submit">Submit</button>';
         document.getElementById('submit').onclick = () => {
           const r = document.querySelector('input[name=mess]:checked');
-          if (r && confirm('Are you sure?')) done(r.value);
+          if (r && confirm('Are you sure?')) book(byId(r.value));
         };
       } else if (layout === 'select') {
-        app.innerHTML = `<select id="s"><option value="">-- choose --</option>${messes.map(m => `<option value="${m}">${m}</option>`).join('')}</select>
+        app.innerHTML = `<select id="s"><option value="">-- choose --</option>${caterers.map(c => `<option value="${c.id}">${c.name}</option>`).join('')}</select>
             <button id="save">Save</button>`;
-        document.getElementById('save').onclick = () => { const v = document.getElementById('s').value; if (v) confirmModal(v); };
-      } else if (layout === 'table') {
-        app.innerHTML = '<p>Your current mess: <b>Sagar</b>foods (Sept)</p><table><tr><th>Caterer</th><th>Seats</th><th></th></tr>' +
-          messes.map(m => `<tr><td>${m === 'Sagarfoods' ? '<b>Sagar</b>foods' : m}</td><td>120</td><td><button class="opt" data-m="${m}">Opt In</button></td></tr>`).join('') + '</table>';
-        app.querySelectorAll('button[data-m]').forEach(b => b.onclick = () => confirmModal(b.dataset.m));
+        document.getElementById('save').onclick = () => { const v = document.getElementById('s').value; if (v) confirmModal(byId(v)); };
       } else if (layout === 'divclick') {
-        app.innerHTML = messes.map(m => `<div class="clickcard" data-m="${m}"><span>${m}</span></div>`).join('') +
+        app.innerHTML = caterers.map(c => `<div class="clickcard" data-id="${c.id}"><span>${c.name}</span></div>`).join('') +
             '<div><button id="proceed">Proceed</button></div>';
         let chosen = null;
-        app.querySelectorAll('.clickcard').forEach(c => c.onclick = () => { chosen = c.dataset.m; c.style.background = '#cfc'; });
-        document.getElementById('proceed').onclick = () => chosen && done(chosen);
+        app.querySelectorAll('.clickcard').forEach(c => c.onclick = () => { chosen = byId(c.dataset.id); c.style.background = '#cfc'; });
+        document.getElementById('proceed').onclick = () => chosen && book(chosen);
       }
-    }, 400);
+    });
   </script>
 </body>
 </html>
