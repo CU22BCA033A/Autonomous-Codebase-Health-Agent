@@ -1,0 +1,74 @@
+<!doctype html>
+<!-- Fake "mess allocation" page for testing the bot offline.
+     Open with ?layout=cards|radio|select|divclick and ?opensIn=<seconds>. -->
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Mock Mess Allocations</title>
+  <style>
+    body { font-family: sans-serif; margin: 24px; }
+    .card { border: 1px solid #ccc; padding: 12px; margin: 8px 0; width: 320px; }
+    .modal { position: fixed; inset: 0; background: #0006; display: flex; align-items: center; justify-content: center; }
+    .modal > div { background: #fff; padding: 20px; }
+    .clickcard { cursor: pointer; }
+  </style>
+</head>
+<body>
+  <h2>Mess Manager / Allocations</h2>
+  <nav><button>View Menu</button> <button>Logout</button></nav>
+  <div id="app">Loading...</div>
+  <script>
+    const q = new URLSearchParams(location.search);
+    const layout = q.get('layout') || 'cards';
+    const opensAt = Number(sessionStorage.opensAt || (sessionStorage.opensAt = Date.now() + 1000 * Number(q.get('opensIn') || 0)));
+    const messes = ['Annapurna Caterers', 'Sagarfoods', 'Royal Kitchen'];
+    const app = document.getElementById('app');
+    const done = name => {
+      document.querySelectorAll('.modal').forEach(m => m.remove());
+      const p = document.createElement('p');
+      p.textContent = name === 'Sagarfoods' ? 'Mess allocated successfully: Sagarfoods' : 'WRONG MESS BOOKED: ' + name;
+      p.id = 'result';
+      document.body.appendChild(p);
+    };
+    const confirmModal = name => {
+      const m = document.createElement('div');
+      m.className = 'modal';
+      m.innerHTML = `<div role="dialog"><p>Book ${name} for next month?</p><button id="no">Cancel</button> <button id="yes">Yes, confirm</button></div>`;
+      document.body.appendChild(m);
+      m.querySelector('#no').onclick = () => m.remove();
+      m.querySelector('#yes').onclick = () => done(name);
+    };
+    // Simulate an SPA that renders after a short delay
+    setTimeout(() => {
+      const open = Date.now() >= opensAt;
+      if (!open && layout !== 'cards') { app.textContent = 'Mess booking has not started yet.'; return; }
+      if (layout === 'cards') {
+        app.innerHTML = messes.map(m => `<div class="card"><h3>${m}</h3><p>Veg / Non-veg</p>
+            <button class="btn" ${open ? '' : 'disabled'} data-m="${m}">Book</button> <button>View Menu</button></div>`).join('');
+        app.querySelectorAll('button[data-m]').forEach(b => b.onclick = () => confirmModal(b.dataset.m));
+      } else if (layout === 'radio') {
+        app.innerHTML = messes.map((m, i) => `<div><input type="radio" name="mess" id="r${i}" value="${m}" style="opacity:0;position:absolute">
+            <label for="r${i}">${m}</label></div>`).join('') + '<button id="submit">Submit</button>';
+        document.getElementById('submit').onclick = () => {
+          const r = document.querySelector('input[name=mess]:checked');
+          if (r && confirm('Are you sure?')) done(r.value);
+        };
+      } else if (layout === 'select') {
+        app.innerHTML = `<select id="s"><option value="">-- choose --</option>${messes.map(m => `<option value="${m}">${m}</option>`).join('')}</select>
+            <button id="save">Save</button>`;
+        document.getElementById('save').onclick = () => { const v = document.getElementById('s').value; if (v) confirmModal(v); };
+      } else if (layout === 'table') {
+        app.innerHTML = '<p>Your current mess: <b>Sagar</b>foods (Sept)</p><table><tr><th>Caterer</th><th>Seats</th><th></th></tr>' +
+          messes.map(m => `<tr><td>${m === 'Sagarfoods' ? '<b>Sagar</b>foods' : m}</td><td>120</td><td><button class="opt" data-m="${m}">Opt In</button></td></tr>`).join('') + '</table>';
+        app.querySelectorAll('button[data-m]').forEach(b => b.onclick = () => confirmModal(b.dataset.m));
+      } else if (layout === 'divclick') {
+        app.innerHTML = messes.map(m => `<div class="clickcard" data-m="${m}"><span>${m}</span></div>`).join('') +
+            '<div><button id="proceed">Proceed</button></div>';
+        let chosen = null;
+        app.querySelectorAll('.clickcard').forEach(c => c.onclick = () => { chosen = c.dataset.m; c.style.background = '#cfc'; });
+        document.getElementById('proceed').onclick = () => chosen && done(chosen);
+      }
+    }, 400);
+  </script>
+</body>
+</html>

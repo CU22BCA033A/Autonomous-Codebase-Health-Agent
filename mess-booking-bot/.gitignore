@@ -1,0 +1,7 @@
+# Your personal login session - NEVER share or commit this folder
+browser-profile/
+# Screenshots and page dumps
+output/
+# Your personal settings (created on first run)
+config.json
+__pycache__/
