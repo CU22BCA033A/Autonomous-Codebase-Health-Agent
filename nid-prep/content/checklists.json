@@ -1,0 +1,27 @@
+{
+  "logistics": [
+    { "id": "apply", "group": "Before exam", "label": "Application submitted and fee paid", "due": "2026-11-30", "detail": "Deadline 30 Nov 2026, 11:59 pm IST. Keep the confirmation PDF." },
+    { "id": "apply-check", "group": "Before exam", "label": "Checked application details (name, photo, category, centre)", "due": "2026-12-03", "detail": "Edit window 1–3 Dec 2026." },
+    { "id": "admit-card", "group": "Before exam", "label": "Admit card downloaded and printed (2 copies)", "due": "2026-12-10", "detail": "Released 10 Dec, 4 pm. Read every instruction — especially which materials are allowed." },
+    { "id": "materials-check", "group": "Before exam", "label": "Matched my kit against the admit card's permitted-materials list", "due": "2026-12-11" },
+    { "id": "centre", "group": "Before exam", "label": "Centre address saved offline and route planned", "due": "2026-12-12", "detail": "Bengaluru. Note reporting time; plan to arrive 60 min early." },
+    { "id": "travel", "group": "Before exam", "label": "Travel and stay booked (reach Bengaluru the day before)", "due": "2026-12-12" },
+    { "id": "id-proof", "group": "Before exam", "label": "Original photo ID ready (as named on admit card)", "due": "2026-12-15" }
+  ],
+  "kit": [
+    { "id": "kit-pencils", "group": "Stationery kit", "label": "Pencils: HB, 2B, 4B (2 each), sharpened" },
+    { "id": "kit-eraser", "group": "Stationery kit", "label": "Erasers (2) and a sharpener" },
+    { "id": "kit-scale", "group": "Stationery kit", "label": "30 cm scale" },
+    { "id": "kit-pens", "group": "Stationery kit", "label": "Black fineliners / ball pens (2–3)" },
+    { "id": "kit-colour", "group": "Stationery kit", "label": "Colour pencils / pastels / markers — only if the admit card allows" },
+    { "id": "kit-bag", "group": "Stationery kit", "label": "Transparent pouch, water bottle, watch (analog, if allowed)" }
+  ],
+  "examDay": [
+    { "id": "day-sleep", "group": "Exam day", "label": "Slept 7+ hours" },
+    { "id": "day-breakfast", "group": "Exam day", "label": "Light breakfast, water" },
+    { "id": "day-docs", "group": "Exam day", "label": "Admit card + photo ID in bag" },
+    { "id": "day-kit", "group": "Exam day", "label": "Stationery kit packed (checked last night)" },
+    { "id": "day-early", "group": "Exam day", "label": "Left early enough to arrive 60 min before reporting time" },
+    { "id": "day-plan", "group": "Exam day", "label": "In the hall: read the whole paper first, write minutes-per-question on the cover" }
+  ]
+}

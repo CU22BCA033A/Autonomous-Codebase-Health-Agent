@@ -1,0 +1,145 @@
+{
+  "categories": [
+    {
+      "id": "visual", "name": "Visual & analytical reasoning", "description": "Mirror/water images, folding, cubes, counting, series, rotation, 3D views, logic.",
+      "subtopics": [
+        { "id": "visual.mirror", "name": "Mirror images" },
+        { "id": "visual.water", "name": "Water images" },
+        { "id": "visual.paper-fold", "name": "Paper folding & hole punching" },
+        { "id": "visual.cube-net", "name": "Cube nets" },
+        { "id": "visual.dice", "name": "Dice" },
+        { "id": "visual.figure-count", "name": "Figure counting" },
+        { "id": "visual.embedded", "name": "Embedded / hidden figures" },
+        { "id": "visual.series", "name": "Non-verbal series" },
+        { "id": "visual.odd-one", "name": "Odd one out" },
+        { "id": "visual.pattern", "name": "Pattern completion" },
+        { "id": "visual.rotation", "name": "Rotation" },
+        { "id": "visual.ortho", "name": "Orthographic views from isometric" },
+        { "id": "visual.venn", "name": "Venn diagrams" },
+        { "id": "visual.direction", "name": "Direction & distance" },
+        { "id": "visual.coding", "name": "Coding–decoding" },
+        { "id": "visual.arrangement", "name": "Linear & circular arrangement" },
+        { "id": "visual.illusion", "name": "Optical illusions" }
+      ]
+    },
+    {
+      "id": "design", "name": "Design fundamentals", "description": "Elements and principles, Gestalt, form & function, ergonomics, typography, signage.",
+      "subtopics": [
+        { "id": "design.elements", "name": "Elements of design" },
+        { "id": "design.principles", "name": "Principles of design" },
+        { "id": "design.gestalt", "name": "Gestalt principles" },
+        { "id": "design.form-function", "name": "Form & function" },
+        { "id": "design.good-bad", "name": "Good vs bad design" },
+        { "id": "design.ergonomics", "name": "Ergonomics basics" },
+        { "id": "design.composition", "name": "Composition & grids" },
+        { "id": "design.typography", "name": "Typography & lettering" },
+        { "id": "design.pictograms", "name": "Pictograms & icons" },
+        { "id": "design.logos", "name": "Logos & symbol reading" },
+        { "id": "design.packaging", "name": "Packaging" },
+        { "id": "design.signage", "name": "Signage & wayfinding" }
+      ]
+    },
+    {
+      "id": "colour", "name": "Colour", "description": "Wheel, harmonies, value, temperature, psychology, Indian and brand contexts.",
+      "subtopics": [
+        { "id": "colour.wheel", "name": "Colour wheel" },
+        { "id": "colour.harmony", "name": "Colour harmonies" },
+        { "id": "colour.value", "name": "Tints, shades & tones" },
+        { "id": "colour.temperature", "name": "Warm & cool" },
+        { "id": "colour.psychology", "name": "Colour psychology & mood" },
+        { "id": "colour.terms", "name": "Colour terminology" },
+        { "id": "colour.indian", "name": "Colour in Indian festivals & crafts" },
+        { "id": "colour.brand", "name": "Colour in branding" }
+      ]
+    },
+    {
+      "id": "drawing", "name": "Drawing knowledge", "description": "Perspective, light & shade, proportion, texture and line.",
+      "subtopics": [
+        { "id": "drawing.perspective", "name": "Perspective (1/2/3-point)" },
+        { "id": "drawing.foreshortening", "name": "Foreshortening" },
+        { "id": "drawing.light-shade", "name": "Light & shade" },
+        { "id": "drawing.figure", "name": "Human figure proportion" },
+        { "id": "drawing.texture", "name": "Texture rendering" },
+        { "id": "drawing.line", "name": "Line quality" }
+      ]
+    },
+    {
+      "id": "indian", "name": "Indian design, crafts & heritage", "description": "Textiles, crafts, painting traditions, architecture, Indian design history.",
+      "subtopics": [
+        { "id": "indian.textiles", "name": "Textiles & weaves" },
+        { "id": "indian.crafts", "name": "Crafts" },
+        { "id": "indian.painting", "name": "Folk & tribal painting" },
+        { "id": "indian.architecture", "name": "Architecture & monuments" },
+        { "id": "indian.design-history", "name": "Indian design & NID history" },
+        { "id": "indian.products", "name": "Indian product icons" }
+      ]
+    },
+    {
+      "id": "global", "name": "Global design awareness", "description": "Movements, designers, iconic products, sustainability, inclusive design, tech.",
+      "subtopics": [
+        { "id": "global.movements", "name": "Design movements" },
+        { "id": "global.designers", "name": "Famous designers" },
+        { "id": "global.products", "name": "Iconic products" },
+        { "id": "global.sustainability", "name": "Sustainability & circular design" },
+        { "id": "global.inclusive", "name": "Universal & inclusive design" },
+        { "id": "global.tech", "name": "AI & emerging tech in design" }
+      ]
+    },
+    {
+      "id": "gk", "name": "General awareness", "description": "Geography, environment, sports, books, business, IT and current affairs.",
+      "subtopics": [
+        { "id": "gk.geography", "name": "Geography" },
+        { "id": "gk.environment", "name": "Environment & ecology" },
+        { "id": "gk.sports", "name": "Sports" },
+        { "id": "gk.books", "name": "Books & authors" },
+        { "id": "gk.business", "name": "Business & brands" },
+        { "id": "gk.it", "name": "IT & computers" },
+        { "id": "gk.current", "name": "Current affairs" }
+      ]
+    },
+    {
+      "id": "creative", "name": "Creative & ideation", "description": "Alternative uses, what-ifs, empathy, problem finding, naming, captions, write-ups.",
+      "subtopics": [
+        { "id": "creative.alt-uses", "name": "Alternative uses" },
+        { "id": "creative.what-if", "name": "What-if scenarios" },
+        { "id": "creative.problem-id", "name": "Problem identification" },
+        { "id": "creative.empathy", "name": "User empathy" },
+        { "id": "creative.association", "name": "Word-to-visual association" },
+        { "id": "creative.naming", "name": "Naming & slogans" },
+        { "id": "creative.caption", "name": "Captions" },
+        { "id": "creative.writeup", "name": "Product write-ups" }
+      ]
+    },
+    {
+      "id": "studio", "name": "Studio tasks", "description": "Drawing on paper: storyboards, memory and observation drawing, posters, signage, symbols.",
+      "subtopics": [
+        { "id": "studio.storyboard", "name": "Storyboards" },
+        { "id": "studio.memory", "name": "Memory drawing" },
+        { "id": "studio.observation", "name": "Observation drawing" },
+        { "id": "studio.context", "name": "Object in context" },
+        { "id": "studio.redesign", "name": "Product redesign" },
+        { "id": "studio.problem-solution", "name": "Problem → solution sketch" },
+        { "id": "studio.poster", "name": "Posters, ads & social media series" },
+        { "id": "studio.signage", "name": "Signage & pictogram systems" },
+        { "id": "studio.symbol", "name": "Symbol fusion" },
+        { "id": "studio.pattern", "name": "Pattern & motif" },
+        { "id": "studio.composition", "name": "Composition with given shapes" },
+        { "id": "studio.emotion", "name": "Emotion & expression" },
+        { "id": "studio.perspective-scene", "name": "Perspective scenes" },
+        { "id": "studio.uses", "name": "3 uses in 3 contexts" },
+        { "id": "studio.indian", "name": "Indian-context illustration" }
+      ]
+    },
+    {
+      "id": "mains", "name": "Mains / Studio sensitivity", "description": "Model making, materials, audio-visual perception, presentation, interview.",
+      "subtopics": [
+        { "id": "mains.model", "name": "Model making" },
+        { "id": "mains.material", "name": "Material exploration" },
+        { "id": "mains.av", "name": "Audio-visual perception" },
+        { "id": "mains.sensitivity", "name": "Colour & texture sensitivity" },
+        { "id": "mains.presentation", "name": "Presentation & explanation" },
+        { "id": "mains.interview", "name": "In-person sensitivity (interview)" }
+      ]
+    }
+  ]
+}

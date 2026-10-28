@@ -1,0 +1,40 @@
+{
+  "startDate": "2026-11-01",
+  "totalDays": 100,
+  "targetReadiness": 70,
+  "phases": [
+    {
+      "id": "P1", "name": "Foundation", "fromDay": 1, "toDay": 20,
+      "focus": "Drawing fundamentals, colour, design principles, visual reasoning, ideation habits.",
+      "minItems": 40, "mix": { "quick": 30, "short": 8, "studio": 2 },
+      "mock": { "weekday": 0, "kind": "mini", "durationMin": 90 }
+    },
+    {
+      "id": "P2", "name": "Prelims Intensive", "fromDay": 21, "toDay": 45,
+      "focus": "Exam-format tasks daily: storyboards, problem-solving, posters, signage, symbols, social-media series.",
+      "minItems": 40, "mix": { "quick": 28, "short": 9, "studio": 3 },
+      "mock": { "weekday": 0, "kind": "full", "durationMin": 180 }
+    },
+    {
+      "id": "P3", "name": "Peak & Taper", "fromDay": 46, "toDay": 49,
+      "focus": "Lighter load, weak-area revision, final mock on Day 46, sleep.",
+      "minItems": 40, "mix": { "quick": 34, "short": 4, "studio": 2 },
+      "restDays": [49], "fullMockDays": [46]
+    },
+    {
+      "id": "EXAM", "name": "Exam Day", "fromDay": 50, "toDay": 50,
+      "focus": "Prelims. Calm, checklist only.",
+      "minItems": 0, "mix": { "quick": 0, "short": 0, "studio": 0 }
+    },
+    {
+      "id": "P4", "name": "Board-exam Balance", "fromDay": 51, "toDay": 75,
+      "focus": "20–25 min/day: observation, model-making basics, sketching streak alongside CBSE prep.",
+      "minItems": 12, "mix": { "quick": 8, "short": 3, "studio": 1 }
+    },
+    {
+      "id": "P5", "name": "Mains Studio Prep", "fromDay": 76, "toDay": 100,
+      "focus": "Studio Sensitivity Test: model making, materials, audio-visual perception, presentation; interview prep.",
+      "minItems": 15, "mix": { "quick": 8, "short": 4, "studio": 3 }
+    }
+  ]
+}

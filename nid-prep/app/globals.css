@@ -1,0 +1,84 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* Design tokens. One strong accent (sindoor vermilion) on a warm paper canvas. */
+:root {
+  --paper: #f7f5f0;
+  --surface: #ffffff;
+  --surface-2: #efece4;
+  --ink: #1c1b19;
+  --ink-2: #5d5a53;
+  --ink-3: #8b877d;
+  --line: #e2ded4;
+  --accent: #d9481c;
+  --accent-ink: #ffffff;
+  --accent-soft: #fbe6dd;
+  --good: #2f7d4f;
+  --good-soft: #e2f1e7;
+  --warn: #a8650a;
+  --warn-soft: #fbefd9;
+  --bad: #b3261e;
+  --bad-soft: #f9e3e1;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not(.light) {
+    --paper: #151412;
+    --surface: #1e1d1a;
+    --surface-2: #282622;
+    --ink: #f1eee7;
+    --ink-2: #bdb8ad;
+    --ink-3: #8b877d;
+    --line: #34312c;
+    --accent: #f06a3e;
+    --accent-ink: #1a0d07;
+    --accent-soft: #3a2017;
+    --good: #6cc58f;
+    --good-soft: #1d3326;
+    --warn: #e6a64a;
+    --warn-soft: #3a2c15;
+    --bad: #f08a83;
+    --bad-soft: #3d1f1d;
+  }
+}
+
+@theme inline {
+  --color-paper: var(--paper);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-ink: var(--ink);
+  --color-ink-2: var(--ink-2);
+  --color-ink-3: var(--ink-3);
+  --color-line: var(--line);
+  --color-accent: var(--accent);
+  --color-accent-ink: var(--accent-ink);
+  --color-accent-soft: var(--accent-soft);
+  --color-good: var(--good);
+  --color-good-soft: var(--good-soft);
+  --color-warn: var(--warn);
+  --color-warn-soft: var(--warn-soft);
+  --color-bad: var(--bad);
+  --color-bad-soft: var(--bad-soft);
+  --font-sans: var(--font-grotesk), ui-sans-serif, system-ui, sans-serif;
+  --font-serif: var(--font-serif-display), ui-serif, Georgia, serif;
+}
+
+html { -webkit-text-size-adjust: 100%; }
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Keyboard focus is always visible. */
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 6px; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+}
+
+/* Inline SVG puzzles follow the theme. */
+.puzzle-svg { color: var(--ink); }
+.puzzle-svg svg { width: 100%; height: auto; display: block; }

@@ -1,0 +1,21 @@
+{
+  "exam": "NID DAT 2027 — B.Des",
+  "verifyAt": "https://admissions.nid.edu",
+  "lastReviewed": "2026-10-28",
+  "milestones": [
+    { "id": "application", "label": "Application deadline", "at": "2026-11-30T23:59:00+05:30", "note": "Edit window 1–3 Dec 2026" },
+    { "id": "admit-card", "label": "Admit card release", "at": "2026-12-10T16:00:00+05:30", "note": "Download and check permitted materials" },
+    { "id": "prelims", "label": "DAT Prelims", "at": "2026-12-20T09:00:00+05:30", "note": "Pen-and-paper, 3 hours, Bengaluru centre. Reporting time is on the admit card." },
+    { "id": "prelims-result", "label": "Prelims result", "at": "2027-03-16T16:00:00+05:30", "note": "Shortlist for Mains" },
+    { "id": "mains", "label": "DAT Mains (expected)", "at": "2027-04-20T09:00:00+05:30", "note": "Expected Apr–May 2027 — update when NID announces", "tentative": true }
+  ],
+  "prelims": {
+    "durationMin": 180,
+    "totalMarks": 100,
+    "format": "2026 pattern: ~6 questions with sub-parts (~12–15 drawing/design tasks), no objective section. 2027 handbook gives no section breakup — objective section may return.",
+    "weightInFinalMerit": "Qualifying only"
+  },
+  "mains": {
+    "components": ["Studio Sensitivity Test", "In-Person Sensitivity Test"]
+  }
+}
