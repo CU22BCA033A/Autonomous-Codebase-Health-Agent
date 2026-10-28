@@ -1,13 +1,22 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createServerClient } from "@supabase/ssr";
+import { supabaseAnonKey, supabaseUrl } from "@/lib/supabase/env";
 
-const PUBLIC_PATHS = ["/login", "/manifest.webmanifest", "/icon.svg"];
+const PUBLIC_PATHS = ["/login", "/setup", "/manifest.webmanifest", "/icon.svg"];
 
 export async function middleware(request: NextRequest) {
   let response = NextResponse.next({ request });
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-  if (!url || !anonKey) return response;
+  const url = supabaseUrl();
+  const anonKey = supabaseAnonKey();
+  const path = request.nextUrl.pathname;
+  // Not configured yet (fresh Vercel deploy): send everything to the setup guide.
+  if (!url || !anonKey) {
+    if (path.startsWith("/setup") || PUBLIC_PATHS.some((p) => path.startsWith(p) && p !== "/login")) return response;
+    const setup = request.nextUrl.clone();
+    setup.pathname = "/setup";
+    setup.search = "";
+    return NextResponse.redirect(setup);
+  }
 
   const supabase = createServerClient(url, anonKey, {
     cookies: {
@@ -21,7 +30,6 @@ export async function middleware(request: NextRequest) {
   });
 
   const { data } = await supabase.auth.getUser();
-  const path = request.nextUrl.pathname;
   if (!data.user && !PUBLIC_PATHS.some((p) => path.startsWith(p))) {
     const login = request.nextUrl.clone();
     login.pathname = "/login";

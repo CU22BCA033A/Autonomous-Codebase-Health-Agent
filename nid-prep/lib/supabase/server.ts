@@ -2,12 +2,13 @@ import "server-only";
 import { cookies } from "next/headers";
 import { createServerClient } from "@supabase/ssr";
 import { createClient } from "@supabase/supabase-js";
-import { publicEnv } from "./env";
+import { publicEnv, supabaseServiceKey } from "./env";
 
 /** Per-request client acting as the signed-in user (RLS applies). */
 export async function supabaseServer() {
-  const { url, anonKey } = publicEnv();
+  // Read cookies first so every page using this is rendered per request (never prerendered at build).
   const store = await cookies();
+  const { url, anonKey } = publicEnv();
   return createServerClient(url, anonKey, {
     cookies: {
       getAll: () => store.getAll(),
@@ -25,7 +26,7 @@ export async function supabaseServer() {
 /** Service-role client. Server-only; bypasses RLS — use for seeding and trusted jobs only. */
 export function supabaseAdmin() {
   const { url } = publicEnv();
-  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  const key = supabaseServiceKey();
   if (!key) throw new Error("Missing SUPABASE_SERVICE_ROLE_KEY");
   return createClient(url, key, { auth: { persistSession: false } });
 }

@@ -16,7 +16,8 @@
     "content:import": "tsx scripts/content-import.ts",
     "content:generate": "tsx scripts/content-generate.ts",
     "images:needed": "tsx scripts/images-needed.ts",
-    "setup:users": "tsx scripts/setup-users.ts"
+    "setup:users": "tsx scripts/setup-users.ts",
+    "db:bundle": "tsx scripts/bundle-sql.ts"
   },
   "engines": {
     "node": ">=20"
@@ -40,7 +41,6 @@
     "@types/react-dom": "^19.3.0",
     "dotenv": "^17.4.2",
     "postcss": "^8.5.32",
-    "supabase": "^2.122.0",
     "tailwindcss": "^4.3.3",
     "tsx": "^4.20.6",
     "typescript": "^5.9.3",

@@ -9,7 +9,10 @@ export async function signIn(_prev: { error: string | null }, form: FormData): P
   if (!email || !password) return { error: "Enter your email and password." };
   const supabase = await supabaseServer();
   const { error } = await supabase.auth.signInWithPassword({ email, password });
-  if (error) return { error: "That email and password didn't match." };
+  if (error) {
+    if (error.status === 429) return { error: "Too many sign-in attempts. Wait a few minutes and try again." };
+    return { error: "That email and password didn't match." };
+  }
   redirect(next.startsWith("/") && !next.startsWith("//") ? next : "/");
 }
 

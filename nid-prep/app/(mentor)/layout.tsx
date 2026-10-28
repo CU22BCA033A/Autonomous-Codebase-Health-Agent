@@ -1,6 +1,8 @@
 import { Nav } from "@/components/nav";
 import { requireViewer } from "@/lib/auth";
 
+export const dynamic = "force-dynamic";
+
 export default async function MentorLayout({ children }: { children: React.ReactNode }) {
   await requireViewer("mentor");
   return (

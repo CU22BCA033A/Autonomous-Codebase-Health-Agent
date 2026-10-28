@@ -10,3 +10,6 @@ Product and engineering calls made while building, with the reason. Newest at th
 6. **Plan dates use IST calendar days**, whatever the device timezone is.
 7. **Streaks skip rest and exam days.** Rest days (Day 49) and exam day (Day 50) never break a streak.
 8. **Exam dates come from the brief.** Admin shows "verify on admissions.nid.edu". The Mains date is a placeholder (20 Apr 2027) marked tentative.
+9. **One-time `/setup` page instead of CLI steps for publishing.** After deploying, the owner opens `/setup` and creates both accounts, which also loads the base content. To prove they own the project, they paste the Supabase service_role key; it is compared on the server with a timing-safe check and never stored. The page locks permanently once a mentor exists.
+10. **`supabase/setup.sql`** is generated from the migrations (`npm run db:bundle`), so publishing needs only one paste into the SQL editor. A unit test fails if it falls out of sync.
+11. **Both key-name styles are accepted** for env vars: `NEXT_PUBLIC_SUPABASE_ANON_KEY`/`…_PUBLISHABLE_KEY` and `SUPABASE_SERVICE_ROLE_KEY`/`SUPABASE_SECRET_KEY`, so either Supabase dashboard style works.
